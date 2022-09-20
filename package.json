@@ -13,7 +13,7 @@
     "clean": "rm -rf out dist",
     "test": "jest && yarn lint",
     "watch": "jest --watch --color",
-    "demo": "webpack-dev-server --config build/webpack.config.dev.js --open",
+    "demo": "webpack-dev-server --config build/webpack.config.dev.js --open --host 0.0.0.0 --disable-host-check",
     "dev": "yarn run demo",
     "build": "tsc -b ./tsconfig.json && yarn lint",
     "build:docs": "NODE_ENV=production webpack --optimize-minimize --config ./build/webpack.config.docs.js",
@@ -28,8 +28,8 @@
     "tty"
   ],
   "dependencies": {
-    "xterm": "^4.4.0",
-    "xterm-addon-serialize": "^0.1.2"
+    "xterm": "^4.19.0",
+    "xterm-addon-serialize": "^0.7.0"
   },
   "devDependencies": {
     "@types/jest": "^25.1.1",

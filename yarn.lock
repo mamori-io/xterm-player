@@ -8200,15 +8200,15 @@ xtend@^4.0.0, xtend@~4.0.1:
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.2.tgz#bb72779f5fa465186b1f438f674fa347fdb5db54"
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
 
-xterm-addon-serialize@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/xterm-addon-serialize/-/xterm-addon-serialize-0.1.2.tgz#339a38520bf90cf51f447cb74f3ae0e530d5ee39"
-  integrity sha512-etSTiN+I3lqWefMixiiVo1V4lPjmfInFmwtjbYDYWyUwPU5tveEZZSu15b52Q26IPaJdl8RxBgNTYu6Q3YauLQ==
+xterm-addon-serialize@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/xterm-addon-serialize/-/xterm-addon-serialize-0.7.0.tgz#cc7ef78972c8425b81dd6ae0a76824ce033d1e5f"
+  integrity sha512-ZfZ4Zj4uTEBFnUA0exipDGZ14jfiWLCov7gIt2OwIjQEz2ey8ic5kL/cxYz5antNz8/hTSA2qZcyA6VyyQASOQ==
 
-xterm@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/xterm/-/xterm-4.4.0.tgz#5915d3c4c8800fadbcf555a0a603c672ab9df589"
-  integrity sha512-JGIpigWM3EBWvnS3rtBuefkiToIILSK1HYMXy4BCsUpO+O4UeeV+/U1AdAXgCB6qJrnPNb7yLgBsVCQUNMteig==
+xterm@^4.19.0:
+  version "4.19.0"
+  resolved "https://registry.yarnpkg.com/xterm/-/xterm-4.19.0.tgz#c0f9d09cd61de1d658f43ca75f992197add9ef6d"
+  integrity sha512-c3Cp4eOVsYY5Q839dR5IejghRPpxciGmLWWaP9g+ppfMeBChMeLa1DCA+pmX/jyDZ+zxFOmlJL/82qVdayVoGQ==
 
 y18n@^3.2.1:
   version "3.2.1"
