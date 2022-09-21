@@ -119,7 +119,6 @@ export class XtermPlayer implements XtermPlayerApi {
 
       this._queue = new CastFrameQueue(cast, 30)
       this._queue.onDurationChanged((d) => {
-          console.info(this, d);
           this._onDurationChanged.fire(d);
       });
 

@@ -51,7 +51,6 @@ class RandomStream {
         }
 
         window.setTimeout(again, 100 + Math.random() * 1000);
-        console.info(this);
     }
 }
 

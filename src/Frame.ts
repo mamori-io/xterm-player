@@ -127,6 +127,7 @@ export class CastFrameQueue implements IFrameQueue {
           (cast as IStreamCastObject).setFeeder(() => {
               let oldDuration = this._duration;
               this.addFrames(cast, step, snapshotFn);
+
               if(oldDuration !== this._duration) {
                   this._onDurationChanged.fire(this._duration);
               }
@@ -158,11 +159,11 @@ export class CastFrameQueue implements IFrameQueue {
       const f = new CastEventsFrame(startTime, endTime, slice, snapshotFn)
       f.prev = prev
       this._frames[this._n++] = prev = f
-
       this._start += step
     }
 
     this._start = events.length;
+    this._endFrame = this._frames[this._frames.length - 1];
     this._endFrame.prev = this._frames[this._frames.length - 2]
     this._duration = this._endFrame.endTime;
   }

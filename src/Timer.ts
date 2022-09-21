@@ -152,7 +152,6 @@ export class SimpleTimer implements ITimer {
   ) {
       if(_player) {
           _player.onDurationChanged((d) => {
-              console.info({here: d});
               this._duration = d;
           });
       }
