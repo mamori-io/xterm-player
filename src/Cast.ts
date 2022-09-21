@@ -16,3 +16,7 @@ export interface ICastObject {
   header: ICastHeader
   events: ICastEvent[]
 }
+
+export interface IStreamCastObject extends ICastObject {
+    setFeeder(feeder: () => void): void
+}

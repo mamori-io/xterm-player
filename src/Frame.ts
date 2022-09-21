@@ -1,6 +1,7 @@
-import { ICastEvent, ICastObject } from './Cast'
+import { ICastEvent, ICastObject, IStreamCastObject } from './Cast'
 import { Slice } from './Utils'
 import { IDisposable } from './Types'
+import { EventEmitter, IEvent } from './Events'
 
 export interface IFrame {
   readonly startTime: number
@@ -43,10 +44,10 @@ export class CastEventsFrame implements IFrame {
     private _snapshotFn: FrameSnapshotFn = DEFAULT_FRAME_SNAPSHOT_FN
   ) {
     if (!_events.len()) { throw new Error('Invalid frame: empty events') }
-    if ((startTime < 0) || ((endTime - startTime) <= 0)) { // TODO: re-evaluate if endTime - startTime can be ZERO
+    if ((startTime < 0) || ((endTime - startTime) < 0)) {
       throw new Error('Invalid frame: inccorrect time or size')
     }
-    if (_events.get(0).time >= endTime) { throw new Error('Invalid frame: invalid events') }
+    if (_events.get(0).time > endTime) { throw new Error('Invalid frame: invalid events') }
   }
   public set prev(f: IFrame | null) {
     if (f !== this._prev) {
@@ -94,43 +95,80 @@ export interface IFrameQueue extends IDisposable {
   isEnd(frame: IFrame): boolean
   len(): number
   frame(time: number): IFrame
+  readonly onDurationChanged: IEvent<number>
 }
 
 export class NullFrameQueue implements IFrameQueue {
+  private _onDurationChanged = new EventEmitter<number>()
+
   isEnd(frame: IFrame): boolean { return true }
   len(): number { return 0 }
   frame(time: number): IFrame { return NULL_FRAME }
   dispose(): void { }
+  public get onDurationChanged(): IEvent<number> { return this._onDurationChanged.onEvent }
 }
 
 export class CastFrameQueue implements IFrameQueue {
-  private _endFrame: IFrame
+  private _endFrame: IFrame = new NullFrame(0, 0);
   private _frames: Array<IFrame> = []
+  private _onDurationChanged = new EventEmitter<number>()
+  private _start: number = 0;
+  private _n: number = 1;
+  private _duration: number = 0;
 
   constructor(
     cast: ICastObject,
     step: number = DEFAULT_FRAME_EVENTS_STEP,
     snapshotFn: FrameSnapshotFn = DEFAULT_FRAME_SNAPSHOT_FN
   ) {
+      this.addFrames(cast, step, snapshotFn);
+
+      if((cast as IStreamCastObject).setFeeder) {
+          (cast as IStreamCastObject).setFeeder(() => {
+              let oldDuration = this._duration;
+              this.addFrames(cast, step, snapshotFn);
+              if(oldDuration !== this._duration) {
+                  this._onDurationChanged.fire(this._duration);
+              }
+          });
+      }
+  }
+
+  addFrames(
+    cast: ICastObject,
+    step: number,
+    snapshotFn: FrameSnapshotFn
+  ) {
     const duration = cast.header.duration
     const events = cast.events
 
-    this._frames = new Array<IFrame>(2 + Math.ceil(events.length / step))
-    this._frames[0] = START_FRAME
-    this._frames[this._frames.length - 1] = this._endFrame = new NullFrame(duration, duration)
-
-    for (let start = 0, n = 1, prev: IFrame = START_FRAME; start < events.length; start += step) {
-      const end = start + step
-      const slice = new Slice<ICastEvent>(cast.events, start, end) // TODO: Do a benchmark of [].slice vs Slice
-      const startTime = slice.get(0).time
-      const endTime = end < events.length ? events[end].time : duration
-      const f = new CastEventsFrame(startTime, endTime, slice, snapshotFn)
-      f.prev = prev
-      this._frames[n++] = prev = f
+    if(this._frames.length === 0) {
+      this._frames = new Array<IFrame>(2 + Math.ceil(events.length / step))
+      this._frames[0] = START_FRAME
+      this._frames[this._frames.length - 1] = this._endFrame = new NullFrame(duration, duration)
     }
 
+    let prev = this._frames[this._start];
+    while (this._start < events.length) {
+      let end = this._start + step
+      const slice = new Slice<ICastEvent>(cast.events, this._start, end) // TODO: Do a benchmark of [].slice vs Slice
+      end = this._start + slice.len() - 1;
+      const startTime = slice.get(0).time
+      const endTime = events[end].time
+      const f = new CastEventsFrame(startTime, endTime, slice, snapshotFn)
+      f.prev = prev
+      this._frames[this._n++] = prev = f
+
+      this._start += step
+    }
+
+    this._start = events.length;
     this._endFrame.prev = this._frames[this._frames.length - 2]
+    this._duration = this._endFrame.endTime;
   }
+
+  public get onDurationChanged(): IEvent<number> { return this._onDurationChanged.onEvent }
+
   public isEnd(frame: IFrame): boolean { return frame === this._endFrame }
   public len(): number { return this._frames.length - 2 }
   public frame(time: number): IFrame {

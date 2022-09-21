@@ -1,5 +1,6 @@
 import { IDisposable } from './Types'
 import { addDisposableDomListener } from './ui/DomHelper'
+import { XtermPlayer } from 'xterm-player'
 
 export const TICK_INTERVAL = 1000 / 30
 
@@ -145,8 +146,17 @@ export class SimpleTimer implements ITimer {
 
   public constructor(
     private _ticker: ITicker,
-    private _duration: number = Infinity
-  ) { }
+    private _duration: number = Infinity,
+    private _player?: XtermPlayer
+
+  ) {
+      if(_player) {
+          _player.onDurationChanged((d) => {
+              console.info({here: d});
+              this._duration = d;
+          });
+      }
+  }
 
   public get duration(): number { return this._duration }
 

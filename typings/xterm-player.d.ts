@@ -153,6 +153,11 @@ declare module 'xterm-player' {
     readonly onStateChanged: IEvent<IPlayerState>
 
     /**
+     * Adds an event listener for when the cast duration changes
+     */
+    readonly onDurationChanged: IEvent<number>
+
+    /**
      * Starts the cast playback.
      */
     play(): void

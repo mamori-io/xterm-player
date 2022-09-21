@@ -80,6 +80,10 @@ export class PlayerView implements IComponent {
     this._player.onStateChanged(() => {
       this.state = this._player.state
     })
+    this._player.onDurationChanged((d) => {
+      this.controlBar.currentTime = this._player.currentTime
+      this.controlBar.duration = d
+    })
 
     this._updateBigButton()
   }

@@ -8,6 +8,7 @@ import { EventEmitter, IEvent } from './Events'
 import { PlayerView } from './ui/PlayerView'
 import { SOLARIZED_DARK, SOLARIZED_LIGHT } from './Theme'
 import fetchCast from './CastFetcher'
+import { ICastObject } from './Cast'
 
 function writeSync(term: xterm.Terminal, data: string) {
   if (data.length) {
@@ -42,7 +43,7 @@ export class XtermPlayer implements XtermPlayerApi {
 
   public readonly el: HTMLElement
 
-  private _url: string = ''
+  private _url: string | ICastObject = ''
   private _term: xterm.Terminal
   private _view: PlayerView
   private _timer: ITimer = new NullTimer()
@@ -62,6 +63,7 @@ export class XtermPlayer implements XtermPlayerApi {
   private _onVolumeChanged = new EventEmitter<number>()
   private _onMutedChanged = new EventEmitter<boolean>()
   private _onStateChanged = new EventEmitter<IPlayerState>()
+  private _onDurationChanged = new EventEmitter<number>()
 
   public get onReady(): IEvent<void> { return this._onReady.onEvent }
   public get onLoading(): IEvent<void> { return this._onLoading.onEvent }
@@ -71,9 +73,10 @@ export class XtermPlayer implements XtermPlayerApi {
   public get onVolumeChanged(): IEvent<number> { return this._onVolumeChanged.onEvent }
   public get onMutedChanged(): IEvent<boolean> { return this._onMutedChanged.onEvent }
   public get onStateChanged(): IEvent<IPlayerState> { return this._onStateChanged.onEvent }
+  public get onDurationChanged(): IEvent<number> { return this._onDurationChanged.onEvent }
 
   constructor(
-    url: string,
+    url: string | ICastObject,
     el: HTMLElement,
     options: IPlayerOptions = {}
   ) {
@@ -111,10 +114,15 @@ export class XtermPlayer implements XtermPlayerApi {
         this._audio.src = cast.header.audio
         this._audio.load()
       } else {
-        this._timer = new SimpleTimer(new AnimationFrameTicker(), cast.header.duration)
+          this._timer = new SimpleTimer(new AnimationFrameTicker(), cast.header.duration, this)
       }
 
       this._queue = new CastFrameQueue(cast, 30)
+      this._queue.onDurationChanged((d) => {
+          console.info(this, d);
+          this._onDurationChanged.fire(d);
+      });
+
       this._timer.onReady(() => {
         this._loading = false
         this._onReady.fire()
@@ -129,7 +137,7 @@ export class XtermPlayer implements XtermPlayerApi {
     })
   }
 
-  public get url(): string { return this._url }
+  public get url(): string { return this._url as string }
   public set url(url: string) {
     if (url !== this._url) {
       this._url = url
