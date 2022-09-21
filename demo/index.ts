@@ -9,10 +9,6 @@ function $id(id: string): HTMLElement {
   return el
 }
 
-function randomString() {
-    return Math.random().toString(36).substring(2);
-}
-
 class RandomStream {
     start: number = Date.now();
     now: number = 0.0
@@ -43,11 +39,11 @@ class RandomStream {
             this.events.push({
                 time: Date.now() - this.start,
                 type: 'o',
-                data: randomString()
+                data: String.fromCharCode(32 + Math.floor(Math.random() * 90))
             });
 
             feeder();
-            window.setTimeout(again, 100 + Math.random() * 1000);
+            window.setTimeout(again, 10);
         }
 
         window.setTimeout(again, 100 + Math.random() * 1000);
