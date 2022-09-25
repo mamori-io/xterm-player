@@ -11,7 +11,7 @@ function $id(id: string): HTMLElement {
 
 let stop = true;
 class RandomStream {
-    start: number = Date.now();
+    start: number = 0.0;
     now: number = 0.0
     header: any =  {
         version: 2,
@@ -24,6 +24,7 @@ class RandomStream {
 
     public setFeeder(feeder: () => void) {
         stop = false;
+        this.start = Date.now();
         this.events = []
         let msg = "Random data will follow soon...\r\n\r\n";
         let time = 0.0;
